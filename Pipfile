@@ -19,6 +19,8 @@ black = "==20.8b1"
 [packages]
 watchdog = "*"
 hpcwatchdog = {editable = true, path = "."}
+environs = "*"
+globus-sdk = "*"
 
 [requires]
 python_version = "3.6"

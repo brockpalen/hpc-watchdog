@@ -10,6 +10,8 @@ import watchdog.events
 import watchdog.observers
 from watchdog.observers.polling import PollingObserver as PollingObserver
 
+from GlobusTransfer import GlobusTransfer
+
 from .args import Args
 from .handler import Handler
 from .log import logger
@@ -18,6 +20,10 @@ from .log import logger
 def main(argv):
 
     args = Args(sys.argv[1:])
+
+    # get GlobusTransfer Logger
+    gt_logger = logging.getLogger("GlobusTransfer")
+    gt_logger.setLevel(logging.DEBUG)
 
     # Set default level for all handlers
     logger.setLevel(logging.DEBUG)
@@ -32,12 +38,16 @@ def main(argv):
     st_handler.setFormatter(formatter)
 
     logger.addHandler(st_handler)
+    gt_logger.addHandler(st_handler)
 
     # now that logging is setup log our settings
     args.log_settings()
 
     src_path = args.path
-    event_handler = Handler()
+    # using globus, init to prompt for endpoiont activation etc
+    GlobusTransfer(args.source, args.destination, args.destination_dir, src_path)
+
+    event_handler = Handler(args)
     observer = watchdog.observers.Observer()
     # observer = watchdog.observers.Observer()
     observer.schedule(event_handler, path=src_path, recursive=True)
@@ -46,7 +56,9 @@ def main(argv):
     logger.info("Starting Main Event Loop")
     try:
         while True:
-            logger.info(f"In Main Event Loop will sleep {args.sleep} seconds")
+            logger.info(
+                f"Starting iteration {event_handler.iteration} will sleep {args.sleep} seconds"
+            )
             s.enter(
                 args.sleep,
                 1,
