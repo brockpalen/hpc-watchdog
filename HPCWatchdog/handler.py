@@ -21,6 +21,7 @@ class Handler(watchdog.events.PatternMatchingEventHandler):
         self.globus = GlobusTransfer(
             args.source, args.destination, args.destination_dir, args.path
         )
+        self.path = args.path
         self.iteration = 0  # How many round trips have we made
 
     def on_created(self, event):
@@ -102,6 +103,18 @@ class Handler(watchdog.events.PatternMatchingEventHandler):
                     f"Globus TaskID {taskid} unhealthy {resp['nice_status']} : {resp['nice_status_short_description']}"
                 )
                 logger.error(resp)
+
+    def prepopulate(self):
+        """Prepopulate the main filelist with existing files."""
+
+        # Walk the main path
+        logger.info(f"Prepopulated requested, walking {self.path}")
+        p = pathlib.Path(self.path).glob("**/*")
+        files = (x for x in p if x.is_file())
+        ts = time.time()  # only call time once
+        for f in files:
+            logger.debug(f"Prepopulating {f} to FileList")
+            self.file_list.files[f] = ts
 
     def status(self, details=False):
         """Dump the status of the current handler."""

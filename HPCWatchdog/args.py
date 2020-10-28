@@ -41,6 +41,11 @@ class Args:
             type=int,
             default=10 * 60,
         )
+        self.parser.add_argument(
+            "--prepopulate",
+            help="Prepopulate watchdog list with existing files in --path",
+            action="store_true",
+        )
 
         globus = self.parser.add_argument_group(
             title="Globus Transfer Options",

@@ -49,6 +49,10 @@ def main(argv):
     GlobusTransfer(args.source, args.destination, args.destination_dir, src_path)
 
     event_handler = Handler(args)
+
+    if args.prepopulate:
+        event_handler.prepopulate()
+
     observer = watchdog.observers.Observer()
     # observer = watchdog.observers.Observer()
     observer.schedule(event_handler, path=src_path, recursive=True)
