@@ -15,7 +15,7 @@ class GlobusTransfer:
     object of where / how to transfer data
     """
 
-    def __init__(self, ep_source, ep_dest, path_dest, path_source):
+    def __init__(self, ep_source, ep_dest, path_dest, path_source, notify={}):
         """
         ep_source  Globus Collection/Endpoint Source Name
         ep_dest    Globus Collection/Endpoint Destination Name
@@ -28,6 +28,7 @@ class GlobusTransfer:
         self.path_dest = path_dest
         self.path_source = path_source
         self.TransferData = None  # start empty created as needed
+        self.notify = notify
 
         authorizer = self.get_authorizer()
 
@@ -127,6 +128,7 @@ class GlobusTransfer:
                 self.ep_dest,
                 verify_checksum=True,
                 label=f"Watchdog {label}",
+                **self.notify,
             )
 
         # add item

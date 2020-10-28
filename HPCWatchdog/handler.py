@@ -19,7 +19,11 @@ class Handler(watchdog.events.PatternMatchingEventHandler):
         self.file_list = FileList()
         self.expired_lists = []
         self.globus = GlobusTransfer(
-            args.source, args.destination, args.destination_dir, args.path
+            args.source,
+            args.destination,
+            args.destination_dir,
+            args.path,
+            notify=args.notify,
         )
         self.path = args.path
         self.iteration = 0  # How many round trips have we made

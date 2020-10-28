@@ -10,14 +10,67 @@ env = Env()
 
 # can't load breaks singularity
 # env.read_env()  # read .env file, if it exists
-class FooAction(argparse.Action):
+
+
+class GlobusNotifyAction(argparse.Action):
     def __init__(self, option_strings, dest, nargs=None, **kwargs):
         if nargs is not None:
             raise ValueError("nargs not allowed")
-        super(FooAction, self).__init__(option_strings, dest, **kwargs)
-    def __call__(self, parser, namespace, values, option_string=None):
-        print('%r %r %r' % (namespace, values, option_string))
-        setattr(namespace, self.dest, values)
+        super(GlobusNotifyAction, self).__init__(option_strings, dest, **kwargs)
+
+    def __call__(self, parser, namespace, value, option_string=None):
+        """Parse --notify settings.
+
+        - "" is the same as "off"
+        - parse by lowercase, comma-split, strip spaces
+        - "off,x" is invalid for any x
+        - "on,x" is valid for any valid x (other than "off")
+        - "failed", "succeeded", "inactive" are normal vals
+        In code, produces True, False, or a set
+        """
+        value = value.lower()
+        value = [x.strip() for x in value.split(",")]
+        # [""] is what you'll get if value is "" to start with
+        # special-case it into "off", which helps avoid surprising scripts
+        # which take a notification settings as inputs and build --notify
+        if value == [""]:
+            value = ["off"]
+
+        off = "off" in value
+        on = "on" in value
+        # set-ize it -- duplicates are fine
+        vals = set([x for x in value if x not in ("off", "on")])
+
+        if (vals or on) and off:
+            parser.error('--notify cannot accept "off" and another value')
+
+        allowed_vals = set(("on", "succeeded", "failed", "inactive"))
+        if not vals <= allowed_vals:
+            parser.error(
+                "--notify received at least one invalid value among {}".format(
+                    list(vals)
+                )
+            )
+
+        # return the notification options to send!
+        # on means don't set anything (default)
+        if on:
+            value = {}
+        # off means turn off everything
+        if off:
+            value = {
+                "notify_on_succeeded": False,
+                "notify_on_failed": False,
+                "notify_on_inactive": False,
+            }
+        # otherwise, return the exact set of values seen
+        else:
+            value = {
+                "notify_on_succeeded": "succeeded" in vals,
+                "notify_on_failed": "failed" in vals,
+                "notify_on_inactive": "inactive" in vals,
+            }
+        setattr(namespace, self.dest, value)
 
 
 class Args:
@@ -84,15 +137,16 @@ class Args:
             help="Globus Verbose Logging",
             action="store_true",
         )
+
+        # based on https://github.com/globus/globus-cli/pull/383/commits/0c5d560a0b7ad60faf9b4a31d0d2794e31909557
         globus.add_argument(
             "--notify",
             help="Comma separated list of task events which notify by email. 'on' and 'off' may be used to enable or disable notifications for all event types. Otherwise, use 'succeeded', 'failed', or 'inactive'",
-            action=FooAction,
-            default="on",
+            action=GlobusNotifyAction,
+            default={},
         )
 
         self.args = self.parser.parse_args(args)
-        print(f"Notify is: {self.args.notify}")
 
         #  push the argparser args onto the main object
         for key, value in vars(self.args).items():
