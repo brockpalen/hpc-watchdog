@@ -2,9 +2,10 @@
 
 import logging
 import sched
+import signal
 import sys
 import time
-from pathlib import Path
+from functools import partial
 
 import watchdog.events
 import watchdog.observers
@@ -51,6 +52,15 @@ def main(argv):
     observer = watchdog.observers.Observer()
     # observer = watchdog.observers.Observer()
     observer.schedule(event_handler, path=src_path, recursive=True)
+
+    # setup signal handler
+    def dump_status(event_handler, signalNumber, frame, details=False):
+        """Dump the Handler() status when USR1 is recived."""
+        event_handler.status(details=details)
+
+    signal.signal(signal.SIGUSR1, partial(dump_status, event_handler))
+    signal.signal(signal.SIGUSR2, partial(dump_status, event_handler, details=True))
+
     observer.start()
     s = sched.scheduler(time.time, time.sleep)
     logger.info("Starting Main Event Loop")

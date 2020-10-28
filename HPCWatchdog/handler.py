@@ -14,7 +14,7 @@ class Handler(watchdog.events.PatternMatchingEventHandler):
     def __init__(self, args):
         # Set the patterns for PatternMatchingEventHandler
         watchdog.events.PatternMatchingEventHandler.__init__(
-            self, patterns=["*.csv"], ignore_directories=True, case_sensitive=False
+            self, patterns=["*"], ignore_directories=True, case_sensitive=False
         )
         self.file_list = FileList()
         self.expired_lists = []
@@ -102,6 +102,22 @@ class Handler(watchdog.events.PatternMatchingEventHandler):
                     f"Globus TaskID {taskid} unhealthy {resp['nice_status']} : {resp['nice_status_short_description']}"
                 )
                 logger.error(resp)
+
+    def status(self, details=False):
+        """Dump the status of the current handler."""
+        logger.info(f"Currently have {len(self.expired_lists)} expired lists in flight")
+        logger.info(
+            f"Currently watching {len(self.file_list.files)} files under their dwell-time"
+        )
+
+        if details:
+            for path, value in self.file_list.files.items():
+                logger.info(f"Watching File: {path} Last Seen: {value}")
+
+            for filelist in self.expired_lists:
+                logger.info(f"Dumping expired list TaskID: {filelist.taskid}")
+                for path in filelist.files:
+                    logger.info(f"Expired Entry: {filelist.taskid} Path: {path}")
 
 
 class FileList:
