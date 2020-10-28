@@ -10,6 +10,14 @@ env = Env()
 
 # can't load breaks singularity
 # env.read_env()  # read .env file, if it exists
+class FooAction(argparse.Action):
+    def __init__(self, option_strings, dest, nargs=None, **kwargs):
+        if nargs is not None:
+            raise ValueError("nargs not allowed")
+        super(FooAction, self).__init__(option_strings, dest, **kwargs)
+    def __call__(self, parser, namespace, values, option_string=None):
+        print('%r %r %r' % (namespace, values, option_string))
+        setattr(namespace, self.dest, values)
 
 
 class Args:
@@ -76,8 +84,15 @@ class Args:
             help="Globus Verbose Logging",
             action="store_true",
         )
+        globus.add_argument(
+            "--notify",
+            help="Comma separated list of task events which notify by email. 'on' and 'off' may be used to enable or disable notifications for all event types. Otherwise, use 'succeeded', 'failed', or 'inactive'",
+            action=FooAction,
+            default="on",
+        )
 
         self.args = self.parser.parse_args(args)
+        print(f"Notify is: {self.args.notify}")
 
         #  push the argparser args onto the main object
         for key, value in vars(self.args).items():
