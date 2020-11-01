@@ -78,6 +78,9 @@ class Args:
 
     def __init__(self, args):
         """CLI options."""
+        source_default = env.str("WD_SOURCE", default=None)
+        dest_default = env.str("WD_DESTINATION", default="umich#flux")
+        dest_path = env.str("WD_DESTINATION_PATH", default=None)
         self.parser = argparse.ArgumentParser(
             description="Drain Directory continously",
             epilog="Brock Palen brockp@umich.edu",
@@ -107,34 +110,36 @@ class Args:
             help="Prepopulate watchdog list with existing files in --path",
             action="store_true",
         )
+        self.parser.add_argument(
+            "--debug",
+            help="Set log level to DEBUG for all handlers",
+            action="store_true",
+        )
 
         globus = self.parser.add_argument_group(
             title="Globus Transfer Options",
             description="Options to setup transfer of data",
         )
-        source_default = env.str("WD_SOURCE", default=None)
         globus.add_argument(
             "--source",
-            help=f"Source endpoint/collection Default: {source_default}",
+            help=f"Source endpoint/collection Default: WD_SOURCE={source_default}",
             default=source_default,
         )
 
-        dest_default = env.str("WD_DESTINATION", default="umich#flux")
         globus.add_argument(
             "--destination",
-            help=f"Destination endpoint/collection Default: {dest_default}",
+            help=f"Destination endpoint/collection Default: WD_DESTINATION={dest_default}",
             default=dest_default,
         )
-        dest_path = env.str("WD_DESTINATION_PATH", default=None)
         globus.add_argument(
             "--destination-dir",
-            help="Directory on Destination server",
+            help="Directory on Destination server Default: WD_DESTINATION_PATH={dest_path}",
             required=True,
             default=dest_path,
         )
         globus.add_argument(
-            "--globus-verbose",
-            help="Globus Verbose Logging",
+            "--globus-debug",
+            help="Globus debug Logging",
             action="store_true",
         )
 

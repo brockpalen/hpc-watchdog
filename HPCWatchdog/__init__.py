@@ -15,36 +15,25 @@ from GlobusTransfer import GlobusTransfer
 
 from .args import Args
 from .handler import Handler
-from .log import logger
+from .log import logger, set_debug, set_gt_debug
 
 
 def main(argv):
 
     args = Args(sys.argv[1:])
 
-    # get GlobusTransfer Logger
-    gt_logger = logging.getLogger("GlobusTransfer")
-    gt_logger.setLevel(logging.DEBUG)
-
-    # Set default level for all handlers
-    logger.setLevel(logging.DEBUG)
-
-    # stream / stderr handler
-    st_handler = logging.StreamHandler()
-
-    # set stream log format
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    st_handler.setFormatter(formatter)
-
-    logger.addHandler(st_handler)
-    gt_logger.addHandler(st_handler)
-
     # now that logging is setup log our settings
     args.log_settings()
 
     src_path = args.path
+
+    # Did we ask for debug?
+    if args.debug:
+        set_debug()
+
+    if args.globus_debug:
+        set_gt_debug()
+
     # using globus, init to prompt for endpoiont activation etc
     GlobusTransfer(args.source, args.destination, args.destination_dir, src_path)
 
