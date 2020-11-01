@@ -3,7 +3,7 @@
 *.txt
 *.swp
 *.sif
-*.log.*  
+log/*
 
 
 # taken from https://github.com/github/gitignore/blob/master/Python.gitignore
