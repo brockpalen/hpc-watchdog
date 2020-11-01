@@ -3,7 +3,6 @@ import time
 
 import watchdog.events
 import watchdog.observers
-from watchdog.observers.polling import PollingObserver as PollingObserver
 
 from GlobusTransfer import GlobusTransfer
 

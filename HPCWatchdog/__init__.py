@@ -42,8 +42,8 @@ def main(argv):
     if args.prepopulate:
         event_handler.prepopulate()
 
-    observer = watchdog.observers.Observer()
     # observer = watchdog.observers.Observer()
+    observer = PollingObserver()
     observer.schedule(event_handler, path=src_path, recursive=True)
 
     # setup signal handler

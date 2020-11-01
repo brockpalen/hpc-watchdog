@@ -23,10 +23,10 @@ repos:
       #  types: [python]
       #  exclude: setup.py
 
-      - id: pytest
-        name: pytest
-        stages: [commit]
-        language: system
-        entry: pipenv run pytest --no-cov
-        types: [python]
-        pass_filenames: false
+      #  - id: pytest
+      #    name: pytest
+      #    stages: [commit]
+      #    language: system
+      #    entry: pipenv run pytest --no-cov
+      #    types: [python]
+      #    pass_filenames: false
