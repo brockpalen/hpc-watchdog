@@ -12,7 +12,7 @@ install:
   - pipenv install --dev
 
 script:
-  - pytest
+        #  - pytest
 
 after_success:
   - codecov
