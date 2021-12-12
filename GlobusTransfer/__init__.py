@@ -163,8 +163,8 @@ class GlobusTransfer:
             self.endpoint_autoactivate(self.ep_dest)
             logger.critical("Globus Error! Trying again!", exc_info=True)
             transfer = self.tc.submit_transfer(self.TransferData)
-        except Exception:
-            logger.critical("Unknown Error!", exc_info=True)
+        except Exception as e:
+            logger.critical(f"Unknown Error! {e}", exc_info=True)
 
         logger.debug(f"Submitted Transfer: {transfer['task_id']}")
         self.TransferData = None  # Reset transfer data

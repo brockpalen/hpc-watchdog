@@ -117,7 +117,7 @@ class Handler(watchdog.events.PatternMatchingEventHandler):
         ts = time.time()  # only call time once
         for f in files:
             logger.debug(f"Prepopulating {f} to FileList")
-            self.file_list.files[f] = ts
+            self.file_list.files[str(f)] = ts
 
     def status(self, details=False):
         """Dump the status of the current handler."""
