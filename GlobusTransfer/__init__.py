@@ -128,7 +128,9 @@ class GlobusTransfer:
                 self.ep_dest,
                 verify_checksum=True,
                 label=f"Watchdog {label}",
-                **self.notify,
+                additional_fields={
+                    **self.notify,
+                },
             )
 
         # add item
